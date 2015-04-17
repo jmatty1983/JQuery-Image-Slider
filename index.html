@@ -1,0 +1,214 @@
+
+<!DOCTYPE html>
+<html>
+<head>
+  <meta http-equiv="content-type" content="text/html; charset=UTF-8">
+  <title>JQuery Image Slider</title>
+  
+  <script type='text/javascript' src='//code.jquery.com/jquery-2.1.3.js'></script>
+  
+  
+  
+  
+  <link rel="stylesheet" type="text/css" href="/css/result-light.css">
+  
+  <style type='text/css'>
+    body {
+    width: 600px;
+}
+.slider {
+    border: 1px solid #000;
+    width: 600px;
+    height: 250px;
+    overflow: hidden;
+    border-radius: 5px;
+}
+.slider ul {
+    width: 6000px;
+    margin: 0;
+    padding: 0;
+    height: 100%;
+}
+.slider li {
+    float: left;
+    list-style: none;
+    width: 600px;
+    height: 250px;
+}
+[class^=slide-tracker] {
+    height: 10px;
+    width: 10px;
+    border-radius: 50%;
+    border: 1px solid #000;
+    display: inline-block;
+    margin-right: 3px;
+}
+.active {
+    background-color: #00AAEE;
+}
+#tracker {
+    text-align: center;
+}
+#leftButton, #rightButton {
+    position: absolute;
+    top: 88px;
+    left: 20px;
+    font-size: 5em;
+    opacity: .5;
+}
+#rightButton {
+    left: 550px;
+}
+.slide-1 {
+    background-color: blue;
+}
+.slide-2 {
+    background-color: green;
+}
+.slide-3 {
+    background-color: red;
+}
+.slide-4 {
+    background-color: yellow;
+}
+  </style>
+  
+
+
+<script type='text/javascript'>//<![CDATA[ 
+$(window).load(function(){
+//TODO: Refactor to a module pattern for the whole slider
+
+$(function () {
+    var width = 600;
+    var aniSpeed = 1000;
+    var delay = 3000;
+
+    var $slider = $('.slider ul');
+
+    var myInt;
+
+    var $slides = $slider.find('li');
+    var slideIndex = 0;
+
+    var first = $slider.find('li:first').clone();
+    var last = $slider.find('li:last').clone();
+    first.appendTo($slider);
+    last.prependTo($slider);
+    $slider.css({
+        'margin-left': -width
+    });
+
+    function createTracker() {
+        $('.slider').after("<div id='tracker'></div>");
+        for (i = 0; i < $slides.length; i++) {
+            $('#tracker').append("<div class='slide-tracker-" + i + "'></div>");
+        }
+
+        $('.slide-tracker-0').addClass('active');
+    }
+
+    function createButtons() {
+        $('.slider').append("<div id='leftButton'><</div>");
+        $('.slider').append("<div id='rightButton'>></div>");
+        $('#leftButton').on('click', shiftLeft);
+        $('#rightButton').on('click', shiftRight);
+    }
+
+    //TODO: DRY this
+    function shiftLeft() {
+        $slider.animate({
+            'margin-left': '+=' + width
+        }, aniSpeed, function () {
+            slideIndex--;
+            $('.active').removeClass('active');
+            $('.slide-tracker-' + slideIndex).addClass('active');
+
+            if (slideIndex === -1) {
+                $slider.css({
+                    'margin-left': (-width * $slides.length)
+                });
+                slideIndex = $slides.length - 1;
+                $('.slide-tracker-' + slideIndex).addClass('active');
+            }
+        });
+    }
+
+    function shiftRight() {
+        $slider.animate({
+            'margin-left': '-=' + width
+        }, aniSpeed, function () {
+            slideIndex++;
+            $('.active').removeClass('active');
+            $('.slide-tracker-' + slideIndex).addClass('active');
+
+            if (slideIndex === $slides.length) {
+                $slider.css({
+                    'margin-left': -width
+                });
+                slideIndex = 0;
+                $('.slide-tracker-' + slideIndex).addClass('active');
+            }
+        });
+    }
+
+    function startSlider() {
+        myInt = setInterval(function () {
+            shiftRight();
+        }, delay);
+    }
+
+    function stopSlider() {
+        clearInterval(myInt);
+    }
+
+    function slideToIndex(tracker) {
+        var number = tracker.attr('class').split('-');
+        number = number[number.length - 1];
+
+        $slider.animate({
+            'margin-left': '+=' + width * (slideIndex - number)
+        }, 1000);
+        $('.active').removeClass('active');
+        tracker.addClass('active');
+        slideIndex = number;
+    }
+
+    createTracker();
+    createButtons();
+
+    //TODO: clean up events, this is lazy
+    $slider.on('mouseenter', stopSlider).on('mouseleave', startSlider);
+    $('#leftButton').on('mouseenter', stopSlider);
+    $('#rightButton').on('mouseenter', stopSlider);
+    $('[class^=slide-tracker-]').on('mouseenter', stopSlider).on('mouseleave', startSlider);;
+
+    $('[class^=slide-tracker-]').click(function () {
+        slideToIndex($(this));
+    });
+
+    startSlider();
+});
+});//]]>  
+
+</script>
+
+
+</head>
+<body>
+  <body>
+    <div class="slider">
+        <ul>
+            <li class="slide-1"></li>
+            <li class="slide-2"></li>
+            <li class="slide-3"></li>
+            <li class="slide-4"></li>
+        </ul>
+    </div>
+</body>
+  
+</body>
+
+
+</html>
+
